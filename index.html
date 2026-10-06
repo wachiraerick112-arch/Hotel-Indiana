@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Hotel Indiana</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#17202a}
+header{background:#17324d;color:#fff;padding:16px 20px calc(16px + env(safe-area-inset-top,0px)) 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+header h1{margin:0;font-size:1.3rem}
+header small{opacity:.8}
+#clock{font-size:.85rem;opacity:.85}
+nav{display:flex;gap:8px;background:#fff;padding:10px 15px;border-bottom:1px solid #ddd;overflow:auto;position:sticky;top:0;z-index:5}
+nav button{border:0;background:#eef2f5;padding:10px 14px;border-radius:7px;cursor:pointer;font-size:.85rem;white-space:nowrap;color:#17202a}
+nav button.active{background:#17324d;color:#fff}
+main{max-width:1100px;margin:18px auto;padding:0 14px 40px}
+.tab{display:none}
+.tab.active{display:block}
+.grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 8px #0000000d;margin-bottom:15px}
+h2,h3{margin-top:0}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.item{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;text-align:left;cursor:pointer;color:#17202a}
+.item:hover{border-color:#17324d;background:#f7fafc}
+.item strong{display:block;font-size:.9rem;color:#17202a}
+.item span{font-size:12px;color:#667}
+label{display:block;font-size:13px;font-weight:bold;margin:9px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:7px;font-family:inherit;font-size:.95rem;background:#fff;color:#17202a}
+textarea{resize:vertical;min-height:50px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+.total{font-size:24px;font-weight:bold;text-align:right;margin:15px 0}
+.btn{border:0;border-radius:7px;padding:11px 14px;cursor:pointer;background:#17324d;color:#fff;font-size:.9rem}
+.btn.secondary{background:#e9eef2;color:#17324d}
+.btn.danger{background:#b42318;color:#fff}
+.btn.success{background:#18794e;color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.muted{color:#68737d;font-size:13px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:#fff;padding:16px;border-radius:10px;box-shadow:0 2px 8px #0000000d}
+.stat b{display:block;font-size:22px;margin-top:5px}
+.msg{font-size:.85rem;margin-top:8px;min-height:1em}
+.msg.ok{color:#18794e}
+.msg.err{color:#b42318}
+.pin-wrap{max-width:280px;margin:40px auto}
+.pin-wrap input{text-align:center;letter-spacing:4px;font-size:1.2rem}
+.filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid #ddd;font-size:.78rem;color:#556;white-space:nowrap;cursor:pointer;background:#fff}
+.chip.active{background:#17324d;color:#fff;border-color:#17324d}
+.settings-link{font-size:.75rem;color:#68737d;text-align:right;cursor:pointer;text-decoration:underline;margin-bottom:8px}
+#mpesa-toast{
+  position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%) translateY(-120%);
+  background:#18794e; color:#fff; padding:14px 18px; border-radius:10px; box-shadow:0 6px 18px #00000033;
+  max-width:92vw; width:380px; z-index:1000; transition:transform .25s ease; font-size:.9rem;
+}
+#mpesa-toast.show{ transform:translateX(-50%) translateY(0); }
+#mpesa-toast b{display:block;font-size:1.05rem;margin-bottom:3px}
+#mpesa-toast .close{position:absolute;top:8px;right:10px;cursor:pointer;opacity:.8;background:none;border:0;color:#fff;font-size:1rem}
+.mpesa-pay-tile{border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;background:#fff}
+.mpesa-pay-tile:hover{border-color:#17324d}
+.mpesa-pay-tile.selected{border-color:#18794e;background:#eefbf2}
+.mpesa-pay-tile b{display:block;font-size:.95rem}
+.mpesa-pay-tile span{font-size:12px;color:#667}
+.held-tile{border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:8px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.held-tile .info b{display:block;font-size:.9rem}
+.held-tile .info span{font-size:12px;color:#667}
+#owner-auth-overlay{
+  display:none; position:fixed; inset:0; background:#00000066; z-index:2000;
+  align-items:center; justify-content:center;
+}
+#owner-auth-overlay.show{ display:flex; }
+#owner-auth-overlay .box{ background:#fff; border-radius:10px; padding:20px; width:320px; max-width:90vw; }
+</style>
+</head>
+<body>
+
+<div id="owner-auth-overlay">
+  <div class="box">
+    <h3 style="margin-top:0">Owner Authorization</h3>
+    <p class="muted" id="owner-auth-text">This action deletes data and needs the owner's password.</p>
+    <label>Owner Password</label>
+    <input type="password" id="owner-auth-password">
+    <div class="actions" style="margin-top:10px">
+      <button class="btn danger" id="owner-auth-confirm">Confirm</button>
+      <button class="btn secondary" id="owner-auth-cancel">Cancel</button>
+    </div>
+    <div class="msg err" id="owner-auth-msg"></div>
+  </div>
+</div>
+
+<div id="mpesa-toast" style="position:fixed">
+  <button class="close" id="mpesa-toast-close">✕</button>
+  <div id="mpesa-toast-body"></div>
+</div>
+
+<header>
+  <div><h1>🏨 Hotel Indiana</h1><small>Tap an item to add it to the sale</small></div>
+  <div style="text-align:right">
+    <div id="clock"></div>
+    <div id="admin-status" style="font-size:.78rem;margin-top:4px"></div>
+  </div>
+</header>
+
+<nav>
+  <button class="tabbtn active" data-tab="pos">Point of Sale</button>
+  <button class="tabbtn" data-tab="items">Items</button>
+  <button class="tabbtn" data-tab="expenses">Expenses</button>
+  <button class="tabbtn" data-tab="sales">Sales History</button>
+  <button class="tabbtn" data-tab="reports">Reports</button>
+</nav>
+
+<main>
+
+<section id="pos" class="tab active">
+  <div class="grid">
+    <div class="card">
+      <h2>Sell an Item</h2>
+      <input id="search" placeholder="Search items...">
+      <br><br>
+      <div id="items-grid" class="items"></div>
+    </div>
+    <div class="card" id="held-sales-card" style="display:none">
+      <h3>Held Sales</h3>
+      <div id="held-list"></div>
+    </div>
+    <div class="card">
+      <h2>Current Sale</h2>
+      <label>Staff Name</label>
+      <input id="c-staff" placeholder="Your name">
+      <label>Guest / Room</label>
+      <input id="c-room" placeholder="e.g. Room 12">
+      <div id="cart"></div>
+      <div class="total">Total: KSh <span id="c-total">0.00</span></div>
+      <div class="row">
+        <div><label>Cash Amount (KSh)</label><input id="c-cash-amt" type="number" min="0" step="0.01"></div>
+        <div><label>M-Pesa Amount (KSh)</label><input id="c-mpesa-amt" type="number" min="0" step="0.01" value="0"></div>
+      </div>
+      <div class="msg" id="split-msg"></div>
+      <div id="mpesa-field" style="display:none">
+        <div id="mpesa-pending-list"></div>
+        <label>Or type the confirmation code manually</label>
+        <input id="c-mpesa-code" placeholder="e.g. QGH7X8K2LP" style="text-transform:uppercase">
+      </div>
+      <label>Discount (KSh)</label><input id="c-discount" type="number" value="0" min="0">
+      <label>Notes (optional)</label>
+      <textarea id="c-notes"></textarea>
+      <label>Hold as (e.g. Table 4, Room 12)</label>
+      <input id="c-hold-label" placeholder="Label for this held sale">
+      <br><br>
+      <div class="actions">
+        <button class="btn success" id="c-complete">Complete Sale</button>
+        <button class="btn secondary" id="c-hold">Hold Sale</button>
+        <button class="btn secondary" id="c-clear">Clear</button>
+      </div>
+      <div class="msg" id="c-msg"></div>
+    </div>
+  </div>
+</section>
+
+<section id="items" class="tab">
+  <div class="card">
+    <h2>Manage Items</h2>
+    <div class="row">
+      <div><label>Item name</label><input id="p-name" placeholder="e.g. Chapati"></div>
+      <div><label>Category</label><input id="p-cat" placeholder="e.g. Food, Drinks"></div>
+    </div>
+    <label>Price (KSh)</label>
+    <input id="p-price" type="number" min="0" step="0.01">
+    <br><br>
+    <button class="btn" id="p-add">Add Item</button>
+    <div class="msg" id="p-msg"></div>
+  </div>
+  <div class="card">
+    <table><thead><tr><th>Item</th><th>Category</th><th>Price</th><th></th></tr></thead>
+    <tbody id="items-table"></tbody></table>
+  </div>
+</section>
+
+<section id="expenses" class="tab">
+  <div class="card">
+    <h2>Log an Expense</h2>
+    <label>What was it for?</label>
+    <input id="e-desc" placeholder="e.g. Gas cylinder refill">
+    <div class="row">
+      <div><label>Category</label><input id="e-cat" placeholder="e.g. Supplies, Utilities"></div>
+      <div><label>Amount (KSh)</label><input id="e-amount" type="number" min="0" step="0.01"></div>
+    </div>
+    <div class="row">
+      <div><label>Paid via</label>
+        <select id="e-pay"><option>Cash</option><option>M-Pesa</option></select>
+      </div>
+      <div><label>Staff Name</label><input id="e-staff" placeholder="Your name"></div>
+    </div>
+    <div id="e-mpesa-field" style="display:none">
+      <label>M-Pesa Confirmation Code</label>
+      <input id="e-mpesa-code" placeholder="e.g. QGH7X8K2LP" style="text-transform:uppercase">
+    </div>
+    <label>Notes (optional)</label>
+    <textarea id="e-notes"></textarea>
+    <br><br>
+    <button class="btn success" id="e-submit">Save Expense</button>
+    <div class="msg" id="e-msg"></div>
+  </div>
+  <div id="expenses-body"></div>
+</section>
+
+<section id="sales" class="tab">
+  <div id="sales-body"></div>
+</section>
+
+<section id="reports" class="tab">
+  <div id="reports-body"></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+
+let items = [];
+let sales = [];
+let expenses = [];
+let cart = [];
+let pendingMpesa = [];
+let selectedMpesaPayment = null;
+let heldSales = [];
+let currentAdmin = null;   // {name, role} once logged in — shared across Sales/Reports/Expenses
+let adminList = [];
+let ownerPasswordCache = null; // cached in memory only, for this tab's session — never persisted
+let dateFilter = "today";
+let currentTotal = 0;
+let pinFormOpen = false;
+
+function money(n){ return (Math.round((n||0)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// Every delete goes through this. If the owner's password is already
+// cached for this tab's session it's tried silently first; a wrong/missing
+// password shows a dialog that retries inline until it succeeds or the
+// person cancels. Returns true only once the delete has actually happened.
+async function ownerAuthedDelete(path, message){
+  if(ownerPasswordCache){
+    try{
+      await api(path, {method:"DELETE", body: JSON.stringify({ownerPassword: ownerPasswordCache})});
+      return true;
+    }catch(e){ ownerPasswordCache = null; } // fall through to asking
+  }
+  return new Promise((resolve)=>{
+    const overlay = document.getElementById("owner-auth-overlay");
+    const text = document.getElementById("owner-auth-text");
+    const pwInput = document.getElementById("owner-auth-password");
+    const msg = document.getElementById("owner-auth-msg");
+    const confirmBtn = document.getElementById("owner-auth-confirm");
+    const cancelBtn = document.getElementById("owner-auth-cancel");
+    text.textContent = message || "This action deletes data and needs the owner's password.";
+    pwInput.value = ""; msg.textContent = "";
+    overlay.classList.add("show");
+    pwInput.focus();
+    function cleanup(){
+      overlay.classList.remove("show");
+      confirmBtn.removeEventListener("click", onConfirm);
+      cancelBtn.removeEventListener("click", onCancel);
+      pwInput.removeEventListener("keydown", onEnter);
+    }
+    async function onConfirm(){
+      const pw = pwInput.value;
+      if(!pw){ msg.textContent = "Enter the owner password."; return; }
+      confirmBtn.disabled = true;
+      try{
+        await api(path, {method:"DELETE", body: JSON.stringify({ownerPassword: pw})});
+        ownerPasswordCache = pw;
+        cleanup();
+        resolve(true);
+      }catch(e){
+        msg.textContent = e.message || "Incorrect owner password.";
+        confirmBtn.disabled = false;
+      }
+    }
+    function onCancel(){ cleanup(); resolve(false); }
+    function onEnter(e){ if(e.key==="Enter") onConfirm(); }
+    confirmBtn.addEventListener("click", onConfirm);
+    cancelBtn.addEventListener("click", onCancel);
+    pwInput.addEventListener("keydown", onEnter);
+  });
+}
+
+async function api(path, opts){
+  const res = await fetch("/api"+path, Object.assign({headers:{"Content-Type":"application/json"}}, opts));
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+// ---------- NAV ----------
+document.querySelectorAll(".tabbtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    const id = btn.dataset.tab;
+    document.getElementById(id).classList.add("active");
+    if(id==="items") renderItemsTab();
+    if(id==="expenses") renderExpensesTab();
+    if(id==="sales") renderSalesTab();
+    if(id==="reports") renderReportsTab();
+  });
+});
+
+// ---------- ITEM GRID / CART ----------
+document.getElementById("search").addEventListener("input", renderItemGrid);
+
+function renderItemGrid(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const grid = document.getElementById("items-grid");
+  const list = items.filter(p => (p.name+" "+p.category).toLowerCase().includes(q));
+  grid.innerHTML = list.length ? list.map(p=>`
+    <button class="item" data-id="${p.id}">
+      <strong>${escapeHtml(p.name)}</strong>
+      <span>${escapeHtml(p.category)}</span><br>
+      KSh ${money(p.price)}
+    </button>
+  `).join("") : `<div class="muted">No items yet — add some in the Items tab.</div>`;
+  grid.querySelectorAll(".item").forEach(b=>b.addEventListener("click", ()=>addToCart(b.dataset.id)));
+}
+
+function addToCart(id){
+  const p = items.find(x=>x.id===id);
+  if(!p) return;
+  const existing = cart.find(c=>c.itemId===id);
+  if(existing) existing.qty++;
+  else cart.push({itemId:id, name:p.name, category:p.category, price:p.price, qty:1});
+  renderCart();
+}
+
+function renderCart(){
+  const discount = parseFloat(document.getElementById("c-discount").value)||0;
+  const el = document.getElementById("cart");
+  let sub = 0;
+  el.innerHTML = cart.length ? `
+    <table>
+      <tr><th>Item</th><th>Qty</th><th>Total</th><th></th></tr>
+      ${cart.map((c,i)=>{
+        const t = c.price*c.qty; sub += t;
+        return `<tr>
+          <td>${escapeHtml(c.name)}</td>
+          <td><input type="number" min="1" value="${c.qty}" data-idx="${i}" class="qty-input"></td>
+          <td>KSh ${money(t)}</td>
+          <td><button class="btn danger" data-idx="${i}" style="padding:6px 9px">×</button></td>
+        </tr>`;
+      }).join("")}
+    </table>
+  ` : `<p class="muted">No items yet. Tap an item to add it.</p>`;
+
+  const total = Math.max(0, sub-discount);
+  currentTotal = total;
+  document.getElementById("c-total").textContent = money(total);
+  document.getElementById("c-cash-amt").value = total.toFixed(2);
+  document.getElementById("c-mpesa-amt").value = "0";
+  updateSplitStatus();
+
+  el.querySelectorAll(".qty-input").forEach(inp=>inp.addEventListener("change", ()=>{
+    const i = parseInt(inp.dataset.idx,10);
+    cart[i].qty = Math.max(1, parseInt(inp.value,10)||1);
+    renderCart();
+  }));
+  el.querySelectorAll(".btn.danger[data-idx]").forEach(b=>b.addEventListener("click", ()=>{
+    cart.splice(parseInt(b.dataset.idx,10),1);
+    renderCart();
+  }));
+}
+document.getElementById("c-discount").addEventListener("input", renderCart);
+
+function updateMpesaVisibility(){
+  const mpesaAmt = parseFloat(document.getElementById("c-mpesa-amt").value)||0;
+  document.getElementById("mpesa-field").style.display = mpesaAmt > 0 ? "block" : "none";
+  if(mpesaAmt > 0) renderPendingMpesaList();
+}
+
+function renderPendingMpesaList(){
+  const el = document.getElementById("mpesa-pending-list");
+  if(!pendingMpesa.length){
+    el.innerHTML = `<p class="muted">No unmatched M-Pesa payments yet — they'll appear here the instant Safaricom confirms one, or type the code below manually.</p>`;
+    return;
+  }
+  el.innerHTML = `<label>Tap the matching incoming payment</label>` + pendingMpesa.map(p=>`
+    <div class="mpesa-pay-tile ${selectedMpesaPayment && selectedMpesaPayment.id===p.id ? "selected":""}" data-id="${p.id}">
+      <b>KSh ${money(p.amount)} — ${escapeHtml(p.name||p.phone)}</b>
+      <span>${escapeHtml(p.phone)} · ${escapeHtml(p.transId)}</span>
+    </div>
+  `).join("");
+  el.querySelectorAll(".mpesa-pay-tile").forEach(t=>t.addEventListener("click", ()=>selectMpesaPayment(t.dataset.id)));
+}
+
+function selectMpesaPayment(id){
+  const p = pendingMpesa.find(x=>x.id===id);
+  if(!p) return;
+  if(selectedMpesaPayment && selectedMpesaPayment.id===id){
+    selectedMpesaPayment = null;
+    document.getElementById("c-mpesa-code").value = "";
+    document.getElementById("c-mpesa-code").disabled = false;
+  } else {
+    selectedMpesaPayment = p;
+    document.getElementById("c-mpesa-amt").value = Math.min(p.amount, currentTotal).toFixed(2);
+    document.getElementById("c-cash-amt").value = Math.max(0, currentTotal - Math.min(p.amount, currentTotal)).toFixed(2);
+    document.getElementById("c-mpesa-code").value = p.transId;
+    document.getElementById("c-mpesa-code").disabled = true;
+  }
+  updateSplitStatus();
+  renderPendingMpesaList();
+}
+function updateSplitStatus(){
+  const cash = parseFloat(document.getElementById("c-cash-amt").value)||0;
+  const mpesa = parseFloat(document.getElementById("c-mpesa-amt").value)||0;
+  const diff = Math.round((currentTotal - cash - mpesa)*100)/100;
+  const el = document.getElementById("split-msg");
+  if(Math.abs(diff) < 0.005){ el.textContent = ""; el.className = "msg"; }
+  else if(diff > 0){ el.textContent = `KSh ${money(diff)} still unallocated.`; el.className = "msg err"; }
+  else { el.textContent = `KSh ${money(-diff)} over the total.`; el.className = "msg err"; }
+  updateMpesaVisibility();
+  return Math.abs(diff) < 0.005;
+}
+document.getElementById("c-cash-amt").addEventListener("input", updateSplitStatus);
+document.getElementById("c-mpesa-amt").addEventListener("input", updateSplitStatus);
+
+document.getElementById("c-clear").addEventListener("click", clearCart);
+function clearCart(){
+  cart = [];
+  document.getElementById("c-room").value="";
+  document.getElementById("c-notes").value="";
+  document.getElementById("c-discount").value=0;
+  document.getElementById("c-hold-label").value="";
+  document.getElementById("c-mpesa-code").value="";
+  document.getElementById("c-mpesa-code").disabled = false;
+  selectedMpesaPayment = null;
+  renderCart();
+}
+
+// ---------- HELD SALES (park a sale, work on another, come back later) ----------
+document.getElementById("c-hold").addEventListener("click", async ()=>{
+  const msg = document.getElementById("c-msg");
+  if(!cart.length){ msg.textContent="Add at least one item before holding."; msg.className="msg err"; return; }
+  const btn = document.getElementById("c-hold");
+  btn.disabled = true;
+  try{
+    await api("/held", {method:"POST", body: JSON.stringify({
+      label: document.getElementById("c-hold-label").value.trim(),
+      items: cart.map(c=>({itemId:c.itemId, name:c.name, category:c.category, price:c.price, qty:c.qty})),
+      discount: parseFloat(document.getElementById("c-discount").value)||0,
+      staff: document.getElementById("c-staff").value.trim(),
+      room: document.getElementById("c-room").value.trim(),
+      notes: document.getElementById("c-notes").value.trim()
+    })});
+    msg.textContent = "Sale held — pick it up again from Held Sales."; msg.className="msg ok";
+    clearCart();
+    await loadHeld();
+  }catch(e){
+    msg.textContent = e.message || "Couldn't hold sale."; msg.className="msg err";
+  }
+  btn.disabled = false;
+});
+
+async function loadHeld(){
+  heldSales = await api("/held");
+  renderHeldList();
+}
+
+function renderHeldList(){
+  const card = document.getElementById("held-sales-card");
+  const el = document.getElementById("held-list");
+  if(!heldSales.length){ card.style.display = "none"; return; }
+  card.style.display = "block";
+  el.innerHTML = heldSales.map(h=>{
+    const total = Math.max(0, h.items.reduce((s,i)=>s+i.price*i.qty,0) - (h.discount||0));
+    return `
+      <div class="held-tile">
+        <div class="info">
+          <b>${escapeHtml(h.label)}</b>
+          <span>${h.items.length} item${h.items.length===1?"":"s"} · KSh ${money(total)}${h.room?" · "+escapeHtml(h.room):""}</span>
+        </div>
+        <div class="actions">
+          <button class="btn" data-resume="${h.id}">Resume</button>
+          <button class="btn danger" data-cancel="${h.id}">Cancel</button>
+        </div>
+      </div>`;
+  }).join("");
+  el.querySelectorAll("[data-resume]").forEach(b=>b.addEventListener("click", ()=>resumeHeld(b.dataset.resume)));
+  el.querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", async ()=>{
+    if(b.dataset.confirming !== "1"){
+      b.dataset.confirming = "1"; b.textContent = "Tap to confirm";
+      setTimeout(()=>{ if(b.isConnected){ b.dataset.confirming="0"; b.textContent="Cancel"; } }, 3000);
+      return;
+    }
+    const ok = await ownerAuthedDelete("/held/"+b.dataset.cancel, "Cancelling a held sale needs the owner's password.");
+    if(ok){ await loadHeld(); }
+    else { b.dataset.confirming="0"; b.textContent="Cancel"; }
+  }));
+}
+
+async function resumeHeld(id){
+  const msg = document.getElementById("c-msg");
+  if(cart.length){ msg.textContent="Finish, clear, or hold the current sale first."; msg.className="msg err"; return; }
+  const h = heldSales.find(x=>x.id===id);
+  if(!h) return;
+  cart = h.items.map(i=>({itemId:i.itemId, name:i.name, category:i.category, price:i.price, qty:i.qty}));
+  document.getElementById("c-discount").value = h.discount || 0;
+  document.getElementById("c-staff").value = h.staff || "";
+  document.getElementById("c-room").value = h.room || "";
+  document.getElementById("c-notes").value = h.notes || "";
+  document.getElementById("c-hold-label").value = h.label || "";
+  await api("/held/"+id, {method:"DELETE", body: JSON.stringify({resume: true})});
+  await loadHeld();
+  renderCart();
+}
+
+document.getElementById("c-complete").addEventListener("click", completeSale);
+async function completeSale(){
+  const msg = document.getElementById("c-msg");
+  if(!cart.length){ msg.textContent="Add at least one item."; msg.className="msg err"; return; }
+
+  const discount = parseFloat(document.getElementById("c-discount").value)||0;
+  const sub = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const total = Math.max(0, sub-discount);
+  const cashAmt = parseFloat(document.getElementById("c-cash-amt").value)||0;
+  const mpesaAmt = parseFloat(document.getElementById("c-mpesa-amt").value)||0;
+  const mpesaCode = document.getElementById("c-mpesa-code").value.trim().toUpperCase();
+
+  if(!updateSplitStatus()){
+    msg.textContent = "Cash + M-Pesa must add up to the total."; msg.className="msg err"; return;
+  }
+  if(mpesaAmt > 0 && !mpesaCode && !selectedMpesaPayment){
+    msg.textContent = "Tap the matching M-Pesa payment, or type the confirmation code."; msg.className="msg err"; return;
+  }
+
+  const btn = document.getElementById("c-complete");
+  btn.disabled = true;
+  try{
+    await api("/sales", {method:"POST", body: JSON.stringify({
+      items: cart.map(c=>({name:c.name, category:c.category, qty:c.qty, price:c.price})),
+      subtotal: sub, discount, total,
+      cashAmount: cashAmt, mpesaAmount: mpesaAmt,
+      mpesaCode: selectedMpesaPayment ? undefined : mpesaCode,
+      mpesaPaymentId: selectedMpesaPayment ? selectedMpesaPayment.id : undefined,
+      staff: document.getElementById("c-staff").value.trim(),
+      room: document.getElementById("c-room").value.trim(),
+      notes: document.getElementById("c-notes").value.trim()
+    })});
+    msg.textContent = "Sale saved: KSh "+money(total); msg.className="msg ok";
+    clearCart();
+    loadSales();
+    loadPendingMpesa();
+  }catch(e){
+    msg.textContent = e.message || "Couldn't save — try again."; msg.className="msg err";
+  }
+  btn.disabled = false;
+}
+
+// ---------- ITEMS TAB ----------
+function renderItemsTab(){
+  document.getElementById("items-table").innerHTML = items.length ? items.map(p=>`
+    <tr>
+      <td>${escapeHtml(p.name)}</td>
+      <td>${escapeHtml(p.category)}</td>
+      <td>KSh ${money(p.price)}</td>
+      <td><button class="btn danger" data-id="${p.id}">Delete</button></td>
+    </tr>
+  `).join("") : `<tr><td colspan="4" class="muted">No items yet.</td></tr>`;
+  document.querySelectorAll("#items-table [data-id]").forEach(b=>b.addEventListener("click", async ()=>{
+    if(b.dataset.confirming !== "1"){
+      b.dataset.confirming = "1"; b.textContent = "Tap to confirm";
+      setTimeout(()=>{ if(b.isConnected){ b.dataset.confirming="0"; b.textContent="Delete"; } }, 3000);
+      return;
+    }
+    const ok = await ownerAuthedDelete("/items/"+b.dataset.id, "Deleting an item needs the owner's password.");
+    if(ok){ await loadItems(); renderItemsTab(); }
+    else { b.dataset.confirming="0"; b.textContent="Delete"; }
+  }));
+}
+
+document.getElementById("p-add").addEventListener("click", async ()=>{
+  const msg = document.getElementById("p-msg");
+  const name = document.getElementById("p-name").value.trim();
+  const category = document.getElementById("p-cat").value.trim() || "General";
+  const price = parseFloat(document.getElementById("p-price").value);
+  if(!name || isNaN(price) || price<0){ msg.textContent="Enter a name and valid price."; msg.className="msg err"; return; }
+  try{
+    await api("/items", {method:"POST", body: JSON.stringify({name, category, price})});
+    msg.textContent = "Item added."; msg.className="msg ok";
+    document.getElementById("p-name").value="";
+    document.getElementById("p-cat").value="";
+    document.getElementById("p-price").value="";
+    await loadItems();
+    renderItemsTab();
+  }catch(e){
+    msg.textContent = e.message || "Couldn't add item."; msg.className="msg err";
+  }
+});
+
+// ---------- EXPENSES ----------
+document.getElementById("e-pay").addEventListener("change", ()=>{
+  const isMpesa = document.getElementById("e-pay").value === "M-Pesa";
+  document.getElementById("e-mpesa-field").style.display = isMpesa ? "block" : "none";
+});
+
+document.getElementById("e-submit").addEventListener("click", async ()=>{
+  const msg = document.getElementById("e-msg");
+  const description = document.getElementById("e-desc").value.trim();
+  const category = document.getElementById("e-cat").value.trim() || "General";
+  const amount = parseFloat(document.getElementById("e-amount").value);
+  const payment = document.getElementById("e-pay").value;
+  const mpesaCode = document.getElementById("e-mpesa-code").value.trim().toUpperCase();
+  const staff = document.getElementById("e-staff").value.trim();
+  const notes = document.getElementById("e-notes").value.trim();
+
+  if(!description || !amount || amount<=0){ msg.textContent="Enter a description and a valid amount."; msg.className="msg err"; return; }
+  if(payment === "M-Pesa" && !mpesaCode){ msg.textContent="Enter the M-Pesa confirmation code."; msg.className="msg err"; return; }
+
+  const btn = document.getElementById("e-submit");
+  btn.disabled = true;
+  try{
+    await api("/expenses", {method:"POST", body: JSON.stringify({description, category, amount, payment, mpesaCode, staff, notes})});
+    msg.textContent = "Expense saved."; msg.className="msg ok";
+    document.getElementById("e-desc").value="";
+    document.getElementById("e-cat").value="";
+    document.getElementById("e-amount").value="";
+    document.getElementById("e-mpesa-code").value="";
+    document.getElementById("e-notes").value="";
+    await loadExpenses();
+    if(currentAdmin) renderExpensesTab();
+  }catch(e){
+    msg.textContent = e.message || "Couldn't save expense."; msg.className="msg err";
+  }
+  btn.disabled = false;
+});
+
+function filteredExpenses(){
+  if(dateFilter==="all") return expenses;
+  const now = new Date();
+  return expenses.filter(x=>{
+    const d = new Date(x.date+"T00:00:00");
+    if(dateFilter==="today") return x.date===todayStr();
+    if(dateFilter==="week"){ const diff=(now-d)/86400000; return diff>=0 && diff<7; }
+    if(dateFilter==="month") return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    return true;
+  });
+}
+
+function renderExpensesTab(){
+  const el = document.getElementById("expenses-body");
+  if(!currentAdmin){ el.innerHTML = loginGateHtml(); wireLoginGate(()=>{ renderHeaderAdmin(); renderExpensesTab(); }); return; }
+  const list = filteredExpenses().slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const total = list.reduce((a,x)=>a+(x.amount||0),0);
+  el.innerHTML = `
+    <div class="card">
+      <h2>Expense History</h2>
+      <div class="filters">
+        ${["today","week","month","all"].map(f=>`<div class="chip ${f===dateFilter?"active":""}" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</div>`).join("")}
+      </div>
+      <div class="actions" style="margin-bottom:12px">
+        <button class="btn secondary" id="export-expenses-csv">Export CSV</button>
+      </div>
+      <p class="muted">Total: <b>KSh ${money(total)}</b></p>
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Paid via</th><th>Staff</th><th>Amount</th><th></th></tr></thead>
+        <tbody>
+          ${list.length ? list.map(x=>`
+            <tr>
+              <td>${x.date}</td>
+              <td>${escapeHtml(x.description)}${x.notes?`<br><span class="muted">${escapeHtml(x.notes)}</span>`:""}</td>
+              <td>${escapeHtml(x.category)}</td>
+              <td>${x.payment}${x.mpesaCode?` (${escapeHtml(x.mpesaCode)})`:""}</td>
+              <td>${escapeHtml(x.staff)}</td>
+              <td>KSh ${money(x.amount)}</td>
+              <td><button class="btn danger" data-id="${x.id}">Delete</button></td>
+            </tr>`).join("") : `<tr><td colspan="7" class="muted">No expenses in this range.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+  el.querySelectorAll(".chip").forEach(c=>c.addEventListener("click", ()=>{ dateFilter=c.dataset.f; renderExpensesTab(); }));
+  el.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click", async ()=>{
+    if(b.dataset.confirming !== "1"){
+      b.dataset.confirming = "1"; b.textContent = "Tap to confirm";
+      setTimeout(()=>{ if(b.isConnected){ b.dataset.confirming="0"; b.textContent="Delete"; } }, 3000);
+      return;
+    }
+    const ok = await ownerAuthedDelete("/expenses/"+b.dataset.id, "Deleting an expense needs the owner's password.");
+    if(ok){ await loadExpenses(); renderExpensesTab(); }
+    else { b.dataset.confirming="0"; b.textContent="Delete"; }
+  }));
+  const exportBtn = document.getElementById("export-expenses-csv");
+  if(exportBtn) exportBtn.addEventListener("click", ()=>{
+    const rows = [["Date","Description","Category","Paid via","M-Pesa Code","Staff","Amount","Notes"],
+      ...list.map(x=>[x.date,x.description,x.category,x.payment,x.mpesaCode,x.staff,x.amount,x.notes])];
+    const csv = rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download = "hotel-indiana-expenses.csv";
+    a.click();
+  });
+}
+
+// ---------- SALES / REPORTS / EXPENSES (named admin login) ----------
+function loginGateHtml(){
+  return `
+    <div class="pin-wrap card">
+      <h3>Admin Login</h3>
+      <label>Name</label>
+      <input id="login-name" placeholder="e.g. Jane">
+      <label>Password</label>
+      <input type="password" id="login-password">
+      <button class="btn" id="login-submit" style="width:100%;margin-top:10px">Log In</button>
+      <div class="msg err" id="login-msg"></div>
+    </div>`;
+}
+function wireLoginGate(afterLogin){
+  const go = async ()=>{
+    const name = document.getElementById("login-name").value.trim();
+    const password = document.getElementById("login-password").value;
+    const msg = document.getElementById("login-msg");
+    try{
+      const r = await api("/admin/login", {method:"POST", body: JSON.stringify({name, password})});
+      if(r.ok){ currentAdmin = { name: r.name, role: r.role }; afterLogin(); }
+      else msg.textContent = "Incorrect name or password.";
+    }catch(e){ msg.textContent = "Couldn't log in right now."; }
+  };
+  document.getElementById("login-submit").addEventListener("click", go);
+  document.getElementById("login-password").addEventListener("keydown", e=>{ if(e.key==="Enter") go(); });
+}
+function logout(){
+  currentAdmin = null;
+  ownerPasswordCache = null;
+  pinFormOpen = false;
+  renderHeaderAdmin();
+  renderSalesTab(); renderReportsTab(); renderExpensesTab();
+}
+function renderHeaderAdmin(){
+  const el = document.getElementById("admin-status");
+  el.innerHTML = currentAdmin
+    ? `Logged in as ${escapeHtml(currentAdmin.name)}${currentAdmin.role==="owner" ? " (Owner)" : ""} · <a href="#" id="logout-link" style="color:#fff">Log out</a>`
+    : "";
+  const link = document.getElementById("logout-link");
+  if(link) link.addEventListener("click", e=>{ e.preventDefault(); logout(); });
+}
+
+function adminPanelHtml(){
+  const isOwner = currentAdmin && currentAdmin.role === "owner";
+  if(!pinFormOpen) return `<div class="settings-link" id="admin-panel-open">${isOwner ? "Manage Admins" : "Change My Password"}</div>`;
+
+  const ownerOnlySection = isOwner ? `
+      <h3>Admins</h3>
+      <label>Owner password (confirms changes below)</label>
+      <input type="password" id="admin-authpw">
+      ${adminList.map(a=>`
+        <div class="held-tile">
+          <div class="info"><b>${escapeHtml(a.name)}${a.role==="owner"?" (Owner)":""}</b></div>
+          ${a.role!=="owner" ? `<button class="btn danger" data-remove="${a.id}">Remove</button>` : ""}
+        </div>`).join("")}
+      <h3 style="margin-top:18px">Add an Admin</h3>
+      <label>Name</label><input id="new-admin-name">
+      <label>Password (4+ characters)</label><input type="password" id="new-admin-password">
+      <div class="actions" style="margin-top:10px"><button class="btn success" id="add-admin-btn">Add Admin</button></div>
+      <div class="msg" id="add-admin-msg"></div>
+
+      <h3 style="margin-top:18px">Log Out All Admins</h3>
+      <p class="muted">Forces every device — including this one — back to the login screen. Use this if a device was left logged in somewhere it shouldn't be.</p>
+      <div class="actions"><button class="btn danger" id="force-logout-btn">Log Out All Admins</button></div>
+      <div class="msg" id="force-logout-msg"></div>
+  ` : "";
+
+  return `
+    <div class="card">
+      ${ownerOnlySection}
+      <h3 style="margin-top:18px">Change My Password</h3>
+      <label>Current password</label><input type="password" id="chpw-current">
+      <label>New password</label><input type="password" id="chpw-new">
+      <div class="actions" style="margin-top:10px">
+        <button class="btn success" id="chpw-save">Save Password</button>
+        <button class="btn secondary" id="admin-panel-close">Close</button>
+      </div>
+      <div class="msg" id="chpw-msg"></div>
+    </div>`;
+}
+async function loadAdminList(){ adminList = await api("/admin/list"); }
+function wireAdminPanel(rerender){
+  const isOwner = currentAdmin && currentAdmin.role === "owner";
+  const open = document.getElementById("admin-panel-open");
+  if(open) open.addEventListener("click", async ()=>{ await loadAdminList(); pinFormOpen = true; rerender(); });
+  const close = document.getElementById("admin-panel-close");
+  if(close) close.addEventListener("click", ()=>{ pinFormOpen = false; rerender(); });
+
+  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click", async ()=>{
+    if(b.dataset.confirming !== "1"){
+      b.dataset.confirming = "1"; b.textContent = "Tap to confirm";
+      setTimeout(()=>{ if(b.isConnected){ b.dataset.confirming="0"; b.textContent="Remove"; } }, 3000);
+      return;
+    }
+    const ownerPassword = document.getElementById("admin-authpw").value;
+    try{
+      await api("/admin/"+b.dataset.remove, {method:"DELETE", body: JSON.stringify({ownerPassword})});
+      await loadAdminList();
+      rerender();
+    }catch(e){
+      document.getElementById("add-admin-msg").textContent = e.message || "Couldn't remove admin.";
+      document.getElementById("add-admin-msg").className = "msg err";
+    }
+  }));
+
+  const addBtn = document.getElementById("add-admin-btn");
+  if(addBtn) addBtn.addEventListener("click", async ()=>{
+    const msg = document.getElementById("add-admin-msg");
+    const name = document.getElementById("new-admin-name").value.trim();
+    const password = document.getElementById("new-admin-password").value;
+    const ownerPassword = document.getElementById("admin-authpw").value;
+    addBtn.disabled = true;
+    try{
+      await api("/admin/add", {method:"POST", body: JSON.stringify({ownerPassword, name, password})});
+      msg.textContent = "Admin added ✓"; msg.className = "msg ok";
+      await loadAdminList();
+      setTimeout(rerender, 700);
+    }catch(e){
+      msg.textContent = e.message || "Couldn't add admin."; msg.className = "msg err";
+      addBtn.disabled = false;
+    }
+  });
+
+  const forceLogoutBtn = document.getElementById("force-logout-btn");
+  if(forceLogoutBtn) forceLogoutBtn.addEventListener("click", async ()=>{
+    const msg = document.getElementById("force-logout-msg");
+    const ownerPassword = document.getElementById("admin-authpw").value;
+    forceLogoutBtn.disabled = true;
+    try{
+      await api("/admin/force-logout", {method:"POST", body: JSON.stringify({ownerPassword})});
+      // the broadcast this triggers will log this device out too, momentarily
+    }catch(e){
+      msg.textContent = e.message || "Couldn't log everyone out."; msg.className = "msg err";
+      forceLogoutBtn.disabled = false;
+    }
+  });
+
+  const chpwBtn = document.getElementById("chpw-save");
+  if(chpwBtn) chpwBtn.addEventListener("click", async ()=>{
+    const msg = document.getElementById("chpw-msg");
+    const cur = document.getElementById("chpw-current").value;
+    const np = document.getElementById("chpw-new").value;
+    const me = adminList.find(a=>a.name===currentAdmin.name);
+    if(!me){ msg.textContent="Couldn't find your account."; msg.className="msg err"; return; }
+    chpwBtn.disabled = true;
+    try{
+      await api("/admin/"+me.id+"/password", {method:"PUT", body: JSON.stringify({requesterName: currentAdmin.name, requesterPassword: cur, newPassword: np})});
+      msg.textContent = "Password updated ✓ — use it next time you log in."; msg.className = "msg ok";
+    }catch(e){
+      msg.textContent = e.message || "Couldn't update password."; msg.className = "msg err";
+    }
+    chpwBtn.disabled = false;
+  });
+}
+
+function paymentLabel(s){
+  const cash = s.cashAmount||0, mpesa = s.mpesaAmount||0;
+  if(cash>0 && mpesa>0) return `Cash KSh ${money(cash)} + M-Pesa KSh ${money(mpesa)}`;
+  if(mpesa>0) return "M-Pesa";
+  if(cash>0) return "Cash";
+  return "—";
+}
+
+function filteredSales(){
+  if(dateFilter==="all") return sales;
+  const now = new Date();
+  return sales.filter(s=>{
+    const d = new Date(s.date+"T00:00:00");
+    if(dateFilter==="today") return s.date===todayStr();
+    if(dateFilter==="week"){ const diff=(now-d)/86400000; return diff>=0 && diff<7; }
+    if(dateFilter==="month") return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    return true;
+  });
+}
+
+function renderSalesTab(){
+  const el = document.getElementById("sales-body");
+  if(!currentAdmin){ el.innerHTML = loginGateHtml(); wireLoginGate(()=>{ renderHeaderAdmin(); renderSalesTab(); }); return; }
+  const list = filteredSales().slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  el.innerHTML = `
+    ${adminPanelHtml()}
+    <div class="card">
+      <h2>Sales History</h2>
+      <div class="filters">
+        ${["today","week","month","all"].map(f=>`<div class="chip ${f===dateFilter?"active":""}" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</div>`).join("")}
+      </div>
+      <div class="actions" style="margin-bottom:12px">
+        <button class="btn secondary" id="export-csv">Export CSV</button>
+      </div>
+      <table>
+        <thead><tr><th>Date</th><th>Item(s)</th><th>Guest/Room</th><th>Payment</th><th>M-Pesa Code</th><th>Staff</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+          ${list.length ? list.map(s=>`
+            <tr>
+              <td>${s.date}</td>
+              <td>${(s.items||[]).map(i=>`${escapeHtml(i.name)} ×${i.qty}`).join(", ")}</td>
+              <td>${escapeHtml(s.room)||"-"}</td>
+              <td>${paymentLabel(s)}</td>
+              <td>${escapeHtml(s.mpesaCode)||"-"}</td>
+              <td>${escapeHtml(s.staff)}</td>
+              <td>KSh ${money(s.total)}</td>
+              <td><button class="btn danger" data-id="${s.id}">Delete</button></td>
+            </tr>`).join("") : `<tr><td colspan="8" class="muted">No sales in this range.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+  wireAdminPanel(renderSalesTab);
+  el.querySelectorAll(".chip").forEach(c=>c.addEventListener("click", ()=>{ dateFilter=c.dataset.f; renderSalesTab(); }));
+  el.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click", async ()=>{
+    if(b.dataset.confirming !== "1"){
+      b.dataset.confirming = "1"; b.textContent = "Tap to confirm";
+      setTimeout(()=>{ if(b.isConnected){ b.dataset.confirming="0"; b.textContent="Delete"; } }, 3000);
+      return;
+    }
+    const ok = await ownerAuthedDelete("/sales/"+b.dataset.id, "Deleting a sale needs the owner's password.");
+    if(ok){ await loadSales(); renderSalesTab(); }
+    else { b.dataset.confirming="0"; b.textContent="Delete"; }
+  }));
+  const exportBtn = document.getElementById("export-csv");
+  if(exportBtn) exportBtn.addEventListener("click", ()=>exportCSV(list));
+}
+
+function exportCSV(list){
+  const rows = [["Date","Item(s)","Guest/Room","Cash Amount","M-Pesa Amount","M-Pesa Code","Staff","Total","Notes"],
+    ...list.map(s=>[s.date,(s.items||[]).map(i=>`${i.name} x${i.qty}`).join(" | "),s.room,s.cashAmount,s.mpesaAmount,s.mpesaCode,s.staff,s.total,s.notes])];
+  const csv = rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = "hotel-indiana-sales.csv";
+  a.click();
+}
+
+function renderReportsTab(){
+  const el = document.getElementById("reports-body");
+  if(!currentAdmin){ el.innerHTML = loginGateHtml(); wireLoginGate(()=>{ renderHeaderAdmin(); renderReportsTab(); }); return; }
+  const list = filteredSales();
+  const total = list.reduce((a,s)=>a+(s.total||0),0);
+  const byCat = {}; const byPay = {Cash:0, "M-Pesa":0};
+  list.forEach(s=>{
+    (s.items||[]).forEach(i=> byCat[i.category] = (byCat[i.category]||0) + (i.price*i.qty));
+    byPay["Cash"] += (s.cashAmount||0);
+    byPay["M-Pesa"] += (s.mpesaAmount||0);
+  });
+
+  const expList = filteredExpenses();
+  const expTotal = expList.reduce((a,x)=>a+(x.amount||0),0);
+  const byExpCat = {};
+  expList.forEach(x=> byExpCat[x.category] = (byExpCat[x.category]||0) + (x.amount||0));
+  const net = total - expTotal;
+
+  el.innerHTML = `
+    <h2>Dashboard</h2>
+    <div class="filters">
+      ${["today","week","month","all"].map(f=>`<div class="chip ${f===dateFilter?"active":""}" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</div>`).join("")}
+    </div>
+    <div class="statgrid">
+      <div class="stat">Total Sales<b>KSh ${money(total)}</b></div>
+      <div class="stat">Total Expenses<b>KSh ${money(expTotal)}</b></div>
+      <div class="stat">Net<b style="color:${net>=0?'#18794e':'#b42318'}">KSh ${money(net)}</b></div>
+      <div class="stat">Transactions<b>${list.length}</b></div>
+    </div>
+    <div class="statgrid" style="margin-top:12px">
+      <div class="stat">Cash In<b>KSh ${money(byPay["Cash"])}</b></div>
+      <div class="stat">M-Pesa In<b>KSh ${money(byPay["M-Pesa"])}</b></div>
+    </div>
+    <br>
+    <div class="card">
+      <h3>Sales by Category</h3>
+      <table><tbody>
+        ${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td>${c}</td><td style="text-align:right;font-weight:bold">KSh ${money(v)}</td></tr>`).join("") || `<tr><td class="muted">No sales yet</td></tr>`}
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h3>Expenses by Category</h3>
+      <table><tbody>
+        ${Object.entries(byExpCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td>${c}</td><td style="text-align:right;font-weight:bold">KSh ${money(v)}</td></tr>`).join("") || `<tr><td class="muted">No expenses yet</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+  el.querySelectorAll(".chip").forEach(c=>c.addEventListener("click", ()=>{ dateFilter=c.dataset.f; renderReportsTab(); }));
+}
+
+// ---------- CLOCK ----------
+setInterval(()=>{ document.getElementById("clock").textContent = new Date().toLocaleString(); }, 1000);
+
+// ---------- LIVE M-PESA NOTIFICATIONS ----------
+// A short beep, generated in-browser (no audio file needed).
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; o.type = "sine";
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.5);
+    o.start(); o.stop(ctx.currentTime+0.5);
+  }catch(e){}
+}
+
+let toastTimer = null;
+function showMpesaToast(d, kind){
+  const isExpense = kind === "expense";
+  const isIncoming = kind === "incoming";
+  const toast = document.getElementById("mpesa-toast");
+  toast.style.background = isExpense ? "#b42318" : isIncoming ? "#b47f18" : "#18794e";
+  const title = isExpense
+    ? `M-Pesa payment sent — KSh ${money(d.amount)}`
+    : isIncoming
+    ? `M-Pesa payment detected — KSh ${money(d.amount)}`
+    : `M-Pesa payment received — KSh ${money(d.amount)}`;
+  const line = isExpense
+    ? `${escapeHtml(d.description||"")}${d.staff ? " · "+escapeHtml(d.staff) : ""}`
+    : isIncoming
+    ? `From ${(d.items||[]).join(", ")} — tap it in the sale screen to attach`
+    : `${(d.items||[]).join(", ")}${d.room ? " · "+escapeHtml(d.room) : ""}${d.staff ? " · "+escapeHtml(d.staff) : ""}`;
+  document.getElementById("mpesa-toast-body").innerHTML = `
+    <b>${title}</b>
+    ${line}<br>
+    Code: ${escapeHtml(d.code)}
+  `;
+  toast.classList.add("show");
+  playBeep();
+  if(document.hidden && "Notification" in window && Notification.permission === "granted"){
+    new Notification(title, { body: `${line} · Code ${d.code}` });
+  }
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove("show"), 8000);
+}
+document.getElementById("mpesa-toast-close").addEventListener("click", ()=>{
+  document.getElementById("mpesa-toast").classList.remove("show");
+  clearTimeout(toastTimer);
+});
+
+if("Notification" in window && Notification.permission === "default"){
+  // Ask once, quietly — lets the alert still show if this tab is in the background.
+  Notification.requestPermission();
+}
+
+function connectEvents(){
+  const es = new EventSource("/api/events");
+  es.addEventListener("mpesa-sale", e => {
+    try{ showMpesaToast(JSON.parse(e.data), "sale"); }catch(err){}
+    loadSales(); // keep Sales History / Reports fresh if those tabs are open
+  });
+  es.addEventListener("mpesa-expense", e => {
+    try{ showMpesaToast(JSON.parse(e.data), "expense"); }catch(err){}
+    loadExpenses();
+  });
+  es.addEventListener("held-updated", () => { loadHeld(); });
+  es.addEventListener("force-logout", () => { if(currentAdmin) logout(); });
+  es.addEventListener("mpesa-incoming", e => {
+    try{
+      const p = JSON.parse(e.data);
+      pendingMpesa.push(p);
+      showMpesaToast({amount:p.amount, code:p.transId, items:[p.name||p.phone]}, "incoming");
+      renderPendingMpesaList();
+    }catch(err){}
+  });
+  es.onerror = () => { es.close(); setTimeout(connectEvents, 3000); };
+}
+connectEvents();
+
+// ---------- INIT ----------
+async function loadItems(){ items = await api("/items"); renderItemGrid(); }
+async function loadSales(){ sales = await api("/sales"); }
+async function loadExpenses(){ expenses = await api("/expenses"); }
+async function loadPendingMpesa(){ pendingMpesa = await api("/mpesa/pending"); renderPendingMpesaList(); }
+
+(async function init(){
+  await loadItems();
+  await loadSales();
+  await loadExpenses();
+  await loadPendingMpesa();
+  await loadHeld();
+  renderCart();
+})();
+
+})();
+</script>
+</body>
+</html>

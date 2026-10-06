@@ -1,0 +1,12 @@
+{
+  "name": "hotel-indiana-pos",
+  "version": "1.0.0",
+  "description": "Hotel Indiana point-of-sale: frontend + backend, self-hosted, no third-party branding.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
