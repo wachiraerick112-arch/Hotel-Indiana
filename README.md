@@ -151,7 +151,7 @@ Once you have all three:
    MPESA_CONSUMER_KEY=xxx \
    MPESA_CONSUMER_SECRET=xxx \
    MPESA_SHORTCODE=your_sandbox_test_shortcode \
-   MPESA_WEBHOOK_SECRET=the_same_secret_you_set_above \
+   MPESA_WEBHOOK_SECRET= 8df2f32aa96630c32fa769cd5dd2f10fbeeb0f8515843e14 \
    PUBLIC_URL=https://your-domain.com \
    MPESA_ENV=sandbox \
    node register-mpesa-urls.js
